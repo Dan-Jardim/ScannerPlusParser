@@ -47,9 +47,3 @@ class non_deterministic_automata:
     def print_transitions(self):
         for transition in self.transitions:
             print(transition)
-
-            
-                
-nda = non_deterministic_automata("(((a,b)+,(a,E)+).)*")
-
-nda.print_transitions()
