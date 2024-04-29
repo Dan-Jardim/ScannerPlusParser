@@ -1,10 +1,21 @@
 class non_deterministic_automata:
     def __init__(self, regular_expression):
+        # outro procedimento que podemos tomar é o matematico
+        # dfa = (Q, a, q0, F, Func)
+        # - Q: estados
+        # - a: simbolos
+        # - q0: Estado inicial
+        # - F: Estados finais
+        # - Func: função de transição
         # deve haver um preprocessamento para os espaços da expressão regular
         self.regular_expression = regular_expression
         self.transitions = []
-        self.states = []
+        self.states = {"0"}
+        self.start_state = "0"
+        self.final_states = {}
+
         self.processRegularExpression()
+        self.createStates()
 
     def processRegularExpression(self):
         # stack e transition não devem ser atributos do nda 
@@ -35,6 +46,21 @@ class non_deterministic_automata:
 
                 quantity += 1
 
+            if symbol == ')':
+                operator_expected = True
+                
+    def createStates(self):
+        current_state = 0
+        while len(self.transitions) > 0:
+            self.states.add(str(current_state))
+            break
+
+    def processTransiton(self):
+        pass
+
+    def print_transitions(self):
+        for transition in self.transitions:
+            print(transition)
             if symbol == ')':
                 operator_expected = True
                 
