@@ -1,4 +1,4 @@
-import 
+import re
 
 class non_deterministic_automata:
     def __init__(self, regular_expression):
@@ -14,8 +14,8 @@ class non_deterministic_automata:
             }
         }
 
-        self.processRegularExpression()
-        self.createStates()
+        #self.processRegularExpression()
+        #self.createStates()
 
     def processRegularExpression(self):
         # stack e transition não devem ser atributos do nda 
@@ -23,38 +23,17 @@ class non_deterministic_automata:
         transition_stack = []
         quantity = 0
         operator_expected = False
+        temporary_re = str(self.regular_expression)
 
-        for symbol in self.regular_expression:
-            stack.append(symbol)
+        while temporary_re != "":
+            re_pattern = r"\(\b[A-Za-z0-9._]+\,\b[A-Za-z0-9._]+\)+[|&]|\(\b[A-Za-z0-9._]+\)+[+*]"
+            transition = re.search(re_pattern, temporary_re)
 
-            if operator_expected == True:
-                operator_expected = False
-                
-                string = ""
-                transition_stack.append(stack.pop())
-                
-                while(stack[-1] != '('):
-                    if (stack[-1] == ","):
-                        string += stack.pop()
-                    else:
-                        transition_stack.append(string)
-                        transition_stack.append(stack.pop())
+            self.processTransiton(transition)
 
-                        string = ""
+            temporary_re = re.sub(re_pattern, f"T{quantity}", temporary_re, 1)
 
-                transition_stack.append(stack.pop())
-                transition_stack.reverse()
-
-                self.processTransiton(transition_stack)
-                
-                transition_stack = []
-
-                stack.append(f'transition[{quantity}]')
-
-                quantity += 1
-
-            if symbol == ')':
-                operator_expected = True
+            quantity+=1
                 
     def createStates(self):
         current_state = 0
@@ -62,38 +41,45 @@ class non_deterministic_automata:
             self.states.add(str(current_state))
             break
 
-    def processTransiton(self, transition_stack):
+    def processTransiton(self, transition_string):
         current_state = len(self.states)
+        symbol_pattern = r"\b[A-Za-z0-9._]"
 
-        symbol = ""
+        symbols = re.findall(symbol_pattern, transition_string)
 
-        for i in transition_stack:
-            if i in "(,)":
-                continue
-            
-            
-            self.aphabet.add(i)
+        if transition_string[-1] == "|":
+            self.createORTransition(symbols)
 
-            self.transitions[str(current_state)] = {
-                i : [str(current_state+1)]
-            }
+        elif transition_string[-1] == "&":
+            self.createANDTransition(symbols)
 
-        pass
+        elif transition_string[-1] == "*":
+            self.createKleeneStarTransition(symbols)
+        
+        if transition_string[-1] == "+":
+            self.createKleenePlusTransition(symbols)
 
     def print_transitions(self):
         for transition in self.transitions:
             print(transition)
-            if symbol == ')':
-                operator_expected = True
+            #if symbol == ')':
+            #    operator_expected = True
                 
     def createStates(self):
         pass
 
-    def processTransiton(self):
-        pass
-
     def print_transitions(self):
         for transition in self.transitions:
             print(transition)
 
+    def createORTransition(self, symbols):
+        pass    
+    
+    def createANDTransition(self, symbols):
+        pass
 
+    def createKleeneStarTransition(self, symbols):
+        pass
+
+    def createKleenePlusTransition(self, symbols):
+        pass
