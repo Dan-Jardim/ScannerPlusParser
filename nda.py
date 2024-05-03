@@ -14,7 +14,7 @@ class non_deterministic_automata:
             }
         }
 
-        #self.processRegularExpression()
+        self.processRegularExpression()
         #self.createStates()
 
     def processRegularExpression(self):
@@ -29,9 +29,17 @@ class non_deterministic_automata:
             re_pattern = r"\(\b[A-Za-z0-9._]+\,\b[A-Za-z0-9._]+\)+[|&]|\(\b[A-Za-z0-9._]+\)+[+*]"
             transition = re.search(re_pattern, temporary_re)
 
-            self.processTransiton(transition)
+            if not transition:
+                break
 
-            temporary_re = re.sub(re_pattern, f"T{quantity}", temporary_re, 1)
+            start = len(self.states)
+
+            ends = self.processTransiton(transition.group())
+
+            temporary_re = re.sub(re_pattern, 
+                                  f"TRANSITION.{start}_{"_".join(str(i) for i in ends)}", 
+                                  temporary_re, 
+                                  1)
 
             quantity+=1
                 
@@ -42,22 +50,24 @@ class non_deterministic_automata:
             break
 
     def processTransiton(self, transition_string):
-        current_state = len(self.states)
-        symbol_pattern = r"\b[A-Za-z0-9._]"
-
+        symbol_pattern = r"\b[A-Za-z0-9._]+" 
         symbols = re.findall(symbol_pattern, transition_string)
 
+        ends = []
+
         if transition_string[-1] == "|":
-            self.createORTransition(symbols)
+            ends = self.createORTransition(symbols)
 
         elif transition_string[-1] == "&":
-            self.createANDTransition(symbols)
+            ends = self.createANDTransition(symbols)
 
         elif transition_string[-1] == "*":
-            self.createKleeneStarTransition(symbols)
+            ends = self.createKleeneStarTransition(symbols)
         
         if transition_string[-1] == "+":
-            self.createKleenePlusTransition(symbols)
+            ends = self.createKleenePlusTransition(symbols)
+
+        return ends
 
     def print_transitions(self):
         for transition in self.transitions:
@@ -73,13 +83,86 @@ class non_deterministic_automata:
             print(transition)
 
     def createORTransition(self, symbols):
-        pass    
+        #esse caso só ocorre quando não há transição
+        current_state = len(self.states)
+        equivalent_state = -1
+
+        if "TRANSITION." in symbols[0]:
+            current_state = re.search(r"\.\d+", symbols[0])
+        else:
+            self.aphabet.add(symbols[0])
+
+        if "TRANSITION." in symbols[1]:
+            equivalent_state = re.findall(r"\.\d+", symbols[-1])
+
+        else:
+            self.add(symbols[-1])
+
+        finals = [str(current_state+1), 
+                  str(current_state+2)]
+        
+        self.transitions[str(current_state)] = { 
+            str(symbols[0]) : [finals[0]],
+            str(symbols[1]) : [finals[1]]
+        }
+
+        self.states.update({
+            str(current_state),
+            finals[0],
+            finals[1]
+            })
+        
+        return finals
     
     def createANDTransition(self, symbols):
-        pass
+        current_state = len(self.states)
+        finals = [str(current_state+2)]
+
+        self.transitions[str(current_state)] = { 
+            str(symbols[0]) : [str(current_state+1)]
+        }
+
+        self.transitions[str(current_state+1)] = { 
+            str(symbols[1]) : finals
+        }
+
+        self.states.update({
+            str(current_state), 
+            str(current_state+1), 
+            finals[0]
+            })
+        
+        return finals
 
     def createKleeneStarTransition(self, symbols):
-        pass
+        current_state = len(self.states)
+
+        finals = [str(current_state)]
+
+        self.transitions[str(current_state)] = { 
+            str(symbols[0]) : finals
+        }
+
+        self.states.add(finals[0])
+
+        return finals
 
     def createKleenePlusTransition(self, symbols):
-        pass
+        current_state = len(self.states)
+        finals = [str(current_state+1)]
+
+        self.transitions[str(current_state)] = { 
+            str(symbols[0]) : finals
+        }
+
+        self.transitions[str(current_state+1)] = { 
+            str(symbols[0]) : finals
+        }
+
+        self.states.update({
+            str(current_state), 
+            finals[0]
+        })
+
+        return finals
+    
