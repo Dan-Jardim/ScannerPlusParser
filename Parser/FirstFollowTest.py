@@ -5,6 +5,10 @@ grammara = {
     '<number>': [('0',), ('1',), ('2',), ('3',), ('4',), ('5',), ('6',), ('7',), ('8',), ('9',)]
 }
 
+
+
+
+
 def print_grammar(grammar):
     for non_terminal, rules in grammar.items():
         print(non_terminal + " ::= ", end="")
@@ -15,6 +19,9 @@ def print_grammar(grammar):
             else:
                 print()
         print()
+
+
+
 
 def remove_left_recursion(grammar):
     new_grammar = {}
@@ -53,8 +60,13 @@ grammar2 = {
     'F': [('f'), ('ε',)]
 }
 
+
+
+
+
 new_grammar = remove_left_recursion(grammar)
 print_grammar(new_grammar)
+
 
 def calcula_first(nterminal,first_sets,gramatica):
         if nterminal in first_sets:
@@ -97,7 +109,6 @@ def first(gramatica):
 
 def follow(gramatica, first_sets,start_symbol):
     follow_sets = {nterminal: set() for nterminal in gramatica}
-    follow_sets[start_symbol].add('$')
     
     def derives_epsilon(simbolo):
         return 'ε' in first_sets[simbolo]
@@ -115,11 +126,13 @@ def follow(gramatica, first_sets,start_symbol):
 
                         for j in range(i + 1, len(regra)):
                             prox_simbolo = regra[j]
-
+                            
+                            print(nt+":"+simbolo+prox_simbolo)
+                            
                             # Se o próximo símbolo for um terminal, adicione ao conjunto FOLLOW do não-terminal
                             if prox_simbolo not in gramatica:
                                 follow_sets[simbolo].add(prox_simbolo)
-                                break
+                                break 
                             
                             # Se o próximo símbolo for um não-terminal
                             elif prox_simbolo in gramatica:
@@ -140,7 +153,7 @@ def follow(gramatica, first_sets,start_symbol):
         # Verifica se houve alguma alteração nos conjuntos FOLLOW
         if all(old_follow_sets[nterminal] == follow_sets[nterminal] for nterminal in gramatica):
             break
-
+    follow_sets[start_symbol].add('$')
     return follow_sets
 
 def calculate_follow(grammar, first_sets,start_symbol):
@@ -197,7 +210,6 @@ def calculate_follow(grammar, first_sets,start_symbol):
             break
 
     return follow
-  
 def construct_LL1_parsing_table(grammar, first_sets, follow_sets):
     parsing_table = {}
 
@@ -261,21 +273,24 @@ def print_ll1_parsing_table(parsing_table):
                 print('{:<10}'.format(''), end='')
         print()
 
+
+
 first_sets = first(new_grammar)
 print("FIRST sets:")
+
 for non_terminal, first_set in first_sets.items():
     print(f"FIRST({non_terminal}): {first_set}")
+
 
 follow_sets = follow(new_grammar,first_sets,'E')
 
 #pars=construct_LL1_parsing_table(new_grammar,first_sets,follow_sets)
+
 #print("FIRST sets:")
 #for non_terminal, first_set in first_sets.items():
     #print(f"FIRST({non_terminal}): {first_set}")
-
 print("Conjuntos FOLLOW:")
-
 for non_terminal, follow_set in follow_sets.items():
     print(f"FOLLOW({non_terminal}): {follow_set}")
-
 #print_ll1_parsing_table(pars)
+
