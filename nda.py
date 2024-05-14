@@ -7,7 +7,7 @@ class minor_automata:
         self.final_states = final_states
         self.alphabet = alphabet
 
-    def add_or_transition(self, symbol, new_state):
+    def or_symbol(self, symbol, new_state):
         self.alphabet.add(symbol)
         self.final_states.add(new_state)
         start_transition = self.transitions[self.start_state]
@@ -19,19 +19,7 @@ class minor_automata:
 
         self.transitions[self.start_state] = start_transition
 
-    def __add__(self, other):
-        self.alphabet = self.alphabet | other.alphabet
-        self.final_states = self.final_states | other.final_states
-        transition = self.transitions[self.start_state]
-
-        for symbol, states in other.transitions[other.start_state]:
-            if symbol in transition:
-                for state in states:
-                    transition[symbol].append(state)
-            else:
-                transition[symbol] = states
-
-        self.transitions[self.start_state] = transition
+        return self
 
     def and_symbol(self, symbol, new_state):
         self.alphabet.add(symbol)
@@ -53,6 +41,8 @@ class minor_automata:
         self.final_states.clear()
         self.final_states.add(new_state)
 
+        return self
+
     def kleene_plus_transition(self):
         symbol = ""
 
@@ -70,13 +60,59 @@ class minor_automata:
                     symbol : [self.start_state]
                 }
 
+        return self
+
     def kleene_star_transition(self):
         self.kleene_plus_transition()
 
         self.final_states.add(self.start_state)
 
+        return self
+
+    def or_transition(self, other):
+        self.alphabet = self.alphabet | other.alphabet
+        self.final_states = self.final_states | other.final_states
+        transition = self.transitions[self.start_state]
+
+        for symbol in other.transitions[other.start_state]:
+            states = other.transitions[other.start_state][symbol]
+
+            if symbol in transition:
+                for state in states:
+                    transition[symbol].append(state)
+            else:
+                transition[symbol] = states
+
+        self.transitions[self.start_state] = transition
+
+        self.transitions = self.transitions | other.transitions
+
+        del self.transitions[other.start_state]
+
+        return self
+
     def and_transition(self, other):
-        pass
+        self.alphabet = self.alphabet | other.alphabet
+
+        for final in self.final_states:
+            if final in self.transitions:
+                final_transition = self.transitions[final]
+
+                if "" in final_transition:
+                    final_transition[""].append(other.start_state)
+                else:
+                    final_transition[""] = [other.start_state]
+
+            else:
+                self.transitions[final] = {
+                    "" : [other.start_state]
+                }
+
+        self.transitions = self.transitions | other.transitions
+
+        self.final_states = other.final_states
+
+        return self
         
 
 
@@ -152,9 +188,6 @@ class non_deterministic_automata:
         
         if transition_string[-1] == "+":
             self.createKleenePlusTransition(symbols)
-                
-    def createStates(self):
-        pass 
 
     def print_transitions(self):
         for transition in self.transitions:
@@ -177,7 +210,8 @@ class non_deterministic_automata:
             single_symbol = symbols[0]
 
         if len(sub_nfas) == 2:
-            sub_nfa = sub_nfas[0] + sub_nfas[1]
+            sub_nfa = sub_nfas[0]
+            sub_nfa.or_transition(sub_nfas[1])
         
         elif len(sub_nfas) == 0:
             current_state = len(self.states)
@@ -209,7 +243,7 @@ class non_deterministic_automata:
         else:
             current_state = len(self.states)
 
-            sub_nfas[0].add_or_transition(single_symbol, current_state)
+            sub_nfas[0].or_symbol(single_symbol, current_state)
 
             sub_nfa = sub_nfas[0]
 
@@ -235,7 +269,8 @@ class non_deterministic_automata:
             single_symbol = symbols[0]
 
         if len(sub_nfas) == 2:
-            sub_nfa = sub_nfas[0] + sub_nfas[1]
+            sub_nfa = sub_nfas[0]
+            sub_nfa.and_transition(sub_nfas[1])
         
         elif len(sub_nfas) == 0:
             current_state = len(self.states)
@@ -266,66 +301,101 @@ class non_deterministic_automata:
             self.states.add(str(current_state+2))
 
         else:
-            current_state = len(self.states)
+            if single_symbol == symbols[1]:
+                current_state = len(self.states)
 
-            sub_nfas[0].add_or_transition(single_symbol, current_state)
+                sub_nfa = sub_nfas[0]
 
-            sub_nfa = sub_nfas[0]
+                sub_nfa.and_symbol(single_symbol, current_state)
+
+            else:
+                transition = {
+                    str(current_state) : { 
+                        single_symbol : [str(current_state+1)]
+                    }
+                }
+
+                sub_nfa = minor_automata(
+                    {str(current_state), str(current_state+1)},
+                    transition,
+                    str(current_state),
+                    {str(current_state+1)},
+                    {single_symbol}
+                )
+
+                sub_nfa.and_transition(sub_nfas[0])
+                
 
             self.states.add(str(current_state))
 
         sub_nfa_str = f"SUBAUTOMATA.{len(self.sub_automatas) + 1}"
 
         self.sub_automatas[sub_nfa_str] = sub_nfa
-    
-
-        #current_state = len(self.states)
-        #finals = [str(current_state+2)]
-        #
-        #self.transitions[str(current_state)] = { 
-        #    str(symbols[0]) : [str(current_state+1)]
-        #}
-        #
-        #self.transitions[str(current_state+1)] = { 
-        #    str(symbols[1]) : finals
-        #}
-        #
-        #self.states.update({
-        #    str(current_state), 
-        #    str(current_state+1), 
-        #    finals[0]
-        #    })
-        #
-        #return finals
 
     def createKleeneStarTransition(self, symbols):
-        current_state = len(self.states)
 
-        finals = [str(current_state)]
+        if "SUBAUTOMATA." in symbols[0]:
+            sub_nfa = self.sub_automatas[symbols[0]]
 
-        self.transitions[str(current_state)] = { 
-            str(symbols[0]) : finals
-        }
+            sub_nfa.kleene_star_transition()
+            
+        else:
+            current_state = len(self.states)
 
-        self.states.add(finals[0])
+            transition = {
+                str(current_state) : {
+                    symbols[0] : str(current_state)
+                }
+            }
 
-        return finals
+            sub_nfa = minor_automata(
+                    {str(current_state)},
+                    transition,
+                    str(current_state),
+                    {str(current_state)},
+                    {symbols[0]}
+            )
+
+            self.states.add(str(current_state))
+
+
+        sub_nfa_str = f"SUBAUTOMATA.{len(self.sub_automatas) + 1}"
+
+        self.sub_automatas[sub_nfa_str] = sub_nfa
 
     def createKleenePlusTransition(self, symbols):
-        current_state = len(self.states)
-        finals = [str(current_state+1)]
 
-        self.transitions[str(current_state)] = { 
-            str(symbols[0]) : finals
-        }
+        if "SUBAUTOMATA." in symbols[0]:
+            sub_nfa = self.sub_automatas[symbols[0]]
 
-        self.transitions[str(current_state+1)] = { 
-            str(symbols[0]) : finals
-        }
+            sub_nfa.kleene_plus_transition()
+              
+        else:
+            current_state = len(self.states)
 
-        self.states.update({
-            str(current_state), 
-            finals[0]
-        })
+            transition = {
+                str(current_state) : {
+                    symbols[0] : str(current_state+1)
+                },
+                str(current_state+1) : {
+                    symbols[0] : str(current_state+1)
+                }
+            }
 
-        return finals
+            sub_nfa = minor_automata(
+                    {str(current_state), str(current_state+1)},
+                    transition,
+                    str(current_state),
+                    {str(current_state+1)},
+                    {symbols[0]}
+            )
+
+            self.states.update({
+                str(current_state), 
+                str(current_state+1)
+            })
+            
+
+        sub_nfa_str = f"SUBAUTOMATA.{len(self.sub_automatas) + 1}"
+
+        self.sub_automatas[sub_nfa_str] = sub_nfa
