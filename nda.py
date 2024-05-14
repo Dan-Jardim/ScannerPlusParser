@@ -40,12 +40,40 @@ class minor_automata:
             if final in self.transitions:
                 final_transition = self.transitions[final]
 
-                if symbol in start_transition:
-                    start_transition[symbol].append(new_state)
+                if symbol in final_transition:
+                    final_transition[symbol].append(new_state)
                 else:
-                    start_transition[symbol] = [new_state]
+                    final_transition[symbol] = [new_state]
 
+            else:
+                self.transitions[final] = {
+                    symbol : [new_state]
+                }
 
+        self.final_states.clear()
+        self.final_states.add(new_state)
+
+    def kleene_plus_transition(self):
+        symbol = ""
+
+        for final in self.final_states:
+            if final in self.transitions:
+                final_transition = self.transitions[final]
+
+                if symbol in final_transition:
+                    final_transition[symbol].append(self.start_state)
+                else:
+                    final_transition[symbol] = [self.start_state]
+
+            else:
+                self.transitions[final] = {
+                    symbol : [self.start_state]
+                }
+
+    def kleene_star_transition(self):
+        self.kleene_plus_transition()
+
+        self.final_states.add(self.start_state)
 
     def and_transition(self, other):
         pass
