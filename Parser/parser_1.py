@@ -101,14 +101,17 @@ BASICgrammar = {
     'Mult-Exp': [('Negate-Exp', "Mult-Exp'")],
     "Mult-Exp'" : [('*', 'Mult-Exp'), ('/', 'Mult-Exp'), ('ε',)],
     'Negate-Exp': [('-', 'Power-Exp'), ('Power-Exp',)],
-    'Power-Exp': [('Power-Exp', '^', 'Value'), ('Value',)],
+    'Power-Exp': [('Value',"Power-Exp'")],
+    "Power-Exp'" :[('^', 'Value',"Power-Exp'"),('ε',)],
     'Value': [('(', 'Expression', ')'), ('ID', "Value'"), ('Constant',)],
     "Value'" : [( '(', 'Expression-List', ')'), ('ε',)],
     'Constant': [('Integer',), ('String',), ('Real',)]
 }
 
-basic_grammar = remove_left_recursion(BASICgrammar)
+#basic_grammar = remove_left_recursion(BASICgrammar)
+basic_grammar = BASICgrammar
 
+print_grammar(BASICgrammar)
 print_grammar(basic_grammar)
 
 
@@ -282,7 +285,10 @@ def print_tree(root, markerStr="+- ", levelMarkers=[]):
     mapper = lambda draw: connectionStr if draw else emptyStr
     markers = "".join(map(mapper, levelMarkers[:-1]))
     markers += markerStr if level > 0 else ""
-    print(f"{markers}{root.value}")
+    if root.value !="ε" and root.children==[]:
+        print(f"{markers}\033[31m{root.value}\033[0m")
+    else:
+        print(f"{markers}{root.value}")
     for i, child in enumerate(root.children):
         isLast = i == len(root.children) - 1
         print_tree(child, markerStr, [*levelMarkers, not isLast])
@@ -396,5 +402,5 @@ fonte = ["Integer","PRINT","String","NewLine",
                             "Integer","PRINT","String","NewLine",
                             "Integer","INPUT","ID","NewLine",
                             "Integer","PRINT","String",";","ID",";","String","NewLine"]
-fonte2= ["Int", "PRINT", "String", "NewLine"]
-parser(fonte)
+fonte2= ["Integer", "PRINT", "Integer", "NewLine"]
+parser(fonte2)
