@@ -1,6 +1,6 @@
 import re
 
-class minor_automata:
+class MinorAutomata:
     def __init__(self, states, transitions, start_state, final_states, alphabet):
         self.transitions = transitions
         self.start_state = start_state
@@ -116,7 +116,7 @@ class minor_automata:
         
 
 
-class non_deterministic_automata:
+class NondeterministicFiniteAutomata:
     def __init__(self, regular_expression):
         # deve haver um preprocessamento para os espaços da expressão regular
         self.regular_expression = regular_expression
@@ -142,6 +142,9 @@ class non_deterministic_automata:
         quantity = 0
         operator_expected = False
         temporary_re = str(self.regular_expression)
+
+        sub_automata = ""
+        
         while temporary_re != "":
             re_pattern = r"\(\b[A-Za-z0-9._]+\,\b[A-Za-z0-9._]+\)+[|&]|\(\b[A-Za-z0-9._]+\)+[+*]"
             transition = re.search(re_pattern, temporary_re)
@@ -159,6 +162,14 @@ class non_deterministic_automata:
                                   1)
 
             quantity+=1
+
+        ultimate_automata = self.sub_automatas[sub_automata]
+
+        self.transitions = ultimate_automata.transitions
+        self.alphabet = ultimate_automata.alphabet
+        self.start_state = ultimate_automata.start_state
+        self.final_states = ultimate_automata.final_states
+        
                 
     def createStates(self):
         current_state = 0
@@ -190,8 +201,8 @@ class non_deterministic_automata:
             self.createKleenePlusTransition(symbols)
 
     def print_transitions(self):
-        for transition in self.transitions:
-            print(transition)
+        for state, transition in self.transitions.items():
+            print(state, " -> ", transition)
 
     def createORTransition(self, symbols):
         #esse caso só ocorre quando não há transição
@@ -228,7 +239,7 @@ class non_deterministic_automata:
                 }
             }
 
-            sub_nfa = minor_automata(
+            sub_nfa = MinorAutomata(
                 states,
                 transitions,
                 str(current_state), 
@@ -288,7 +299,7 @@ class non_deterministic_automata:
                 }
             }
 
-            sub_nfa = minor_automata(
+            sub_nfa = MinorAutomata(
                 states,
                 transitions,
                 str(current_state), 
@@ -315,7 +326,7 @@ class non_deterministic_automata:
                     }
                 }
 
-                sub_nfa = minor_automata(
+                sub_nfa = MinorAutomata(
                     {str(current_state), str(current_state+1)},
                     transition,
                     str(current_state),
@@ -348,7 +359,7 @@ class non_deterministic_automata:
                 }
             }
 
-            sub_nfa = minor_automata(
+            sub_nfa = MinorAutomata(
                     {str(current_state)},
                     transition,
                     str(current_state),
@@ -382,7 +393,7 @@ class non_deterministic_automata:
                 }
             }
 
-            sub_nfa = minor_automata(
+            sub_nfa = MinorAutomata(
                     {str(current_state), str(current_state+1)},
                     transition,
                     str(current_state),
@@ -399,3 +410,86 @@ class non_deterministic_automata:
         sub_nfa_str = f"SUBAUTOMATA.{len(self.sub_automatas) + 1}"
 
         self.sub_automatas[sub_nfa_str] = sub_nfa
+
+    def get_parents_state(self, state):
+        parents = {}
+        for current_state, transition in self.transitions.items():
+            for symbol, destinies in transition.items():
+                if state in destinies:
+                    parents.add((current_state, symbol))
+
+        return parents
+
+
+
+def fill_symbols_transition(nfa):
+    for transition in nfa.transitions.values():
+        for symbol in nfa.alphabet:
+            if symbol not in transition:
+                transition[symbol] = []
+
+def remove_empty_transitions(nfa):
+    remove_empty_child(nfa)
+    remove_empty_parent(nfa)
+
+def remove_empty_child(nfa):
+    for state, transition in nfa.transitions.items():
+        if '' in transition:
+            parents = []
+            
+            while len(transition['']) > 0:
+                child_state = transition[''][0]
+                
+                if child_state not in nfa.transitions:
+                    parents.append(child_state)
+                    continue
+
+                for child_transition in nfa.transitions[child_state].items():
+                    transition[child_transition[0]].extend(child_transition[1])
+                
+                transition[''].remove(child_state)
+            
+            if len(parents) > 0:
+                transition[''].extend(parents)
+            else:
+                transition.pop('')
+
+def remove_empty_parent(nfa):
+    
+    for state, transition in nfa.transitions.items():
+        if state == nfa.start_state:
+            continue
+
+        if '' in transition:
+            symbols = {}
+
+            parents = nfa.get_parents_state(state)
+            
+            while len(transition['']) > 0:
+                child_state = transition[''][0]
+
+                for parent in parents:
+                    nfa.transitions[parent[0]][parent[1]].append(child_state)
+
+                transition[''].remove(child_state)
+
+            transition.pop('')
+
+class DeterministicFiniteAutomata:
+    def __init__(self, nfa):
+        self.start_state = nfa.start_state
+        self.states = nfa.states
+        
+        self.create_new_states(nfa.transitions)
+
+    def convert_nfa(self, nfa):
+        pass
+
+    def create_new_states(self, transitions):
+        self.transitions = {}
+
+        for state, transition in transitions.items():
+            pass 
+
+    def remove_unreachables(self):
+        pass
