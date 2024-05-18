@@ -475,6 +475,7 @@ def remove_empty_parent(nfa):
 
             transition.pop('')
 
+
 class DeterministicFiniteAutomata:
     def __init__(self, nfa):
         self.start_state = nfa.start_state
@@ -488,7 +489,19 @@ class DeterministicFiniteAutomata:
     def create_new_states(self, transitions):
         self.transitions = {}
 
+        new_states = {}
+
         for state, transition in transitions.items():
+            new_transition = {}
+            for symbol, destinies in transition.items():
+                
+                if len(destinies) == 0:
+                    new_transition[symbol] = ''
+
+                elif len(destinies) > 1:
+                    destination_state = len(self.states+1)
+                    new_states[destinies] = destination_state
+                       
             pass 
 
     def remove_unreachables(self):
