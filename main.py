@@ -1,25 +1,19 @@
 import nda
 
 def main():
-    my_regex = ["(((alpha,beta)|,(alpha,Empty)|)&)*",
+    my_regex = ["(((alpha,beta)|,(alpha,delta)|)&)*",
                 "((alpha,beta)|,alpha)|"]
     
-    test_nda = nda.non_deterministic_automata(my_regex[1])
+    test_nfa = nda.NondeterministicFiniteAutomata(my_regex[0])
 
-    test_nda.print_transitions()
+    nda.fill_symbols_transition(test_nfa)
+    nda.remove_empty_transitions(test_nfa)
+
+    #test_nfa.print_transitions()
+
+    test_dfa = nda.DeterministicFiniteAutomata(test_nfa)
+
+    test_dfa.print_automata()
 
 if __name__ == "__main__":
-    my_dict = {
-        "0": {
-            "a" : [1,2,3],
-            "alpha" : [4,5,6]
-        },
-        "1": {
-            "b" : [7,8,9]
-        }
-    }
-
-    if "0" in my_dict:
-        print("Its in the dict")
-
     main()

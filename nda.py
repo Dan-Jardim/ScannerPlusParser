@@ -204,6 +204,13 @@ class NondeterministicFiniteAutomata:
         for state, transition in self.transitions.items():
             print(state, " -> ", transition)
 
+    def print_automata(self):
+        print("Start: ",self.start_state)
+        print("Alphabet: ", self.alphabet)
+        print("States: ", self.states)
+        self.print_transitions()
+        print("End States: ", self.final_states)
+
     def createORTransition(self, symbols):
         #esse caso só ocorre quando não há transição
         sub_nfas = []
@@ -474,14 +481,16 @@ def remove_empty_parent(nfa):
                 transition[''].remove(child_state)
 
             transition.pop('')
-
-
-class DeterministicFiniteAutomata:
+class DeterministicFiniteAutomata(NondeterministicFiniteAutomata):
     def __init__(self, nfa):
         self.start_state = nfa.start_state
         self.states = nfa.states
+        self.alphabet = nfa.alphabet
+        self.final_states = nfa.final_states
         
         self.create_new_states(nfa.transitions)
+
+        self.remove_unreachables()
 
     def convert_nfa(self, nfa):
         pass
@@ -492,17 +501,65 @@ class DeterministicFiniteAutomata:
         new_states = {}
 
         for state, transition in transitions.items():
-            new_transition = {}
+            new_transitions = {}
+
             for symbol, destinies in transition.items():
                 
                 if len(destinies) == 0:
-                    new_transition[symbol] = ''
+                    destination_state = ''
 
                 elif len(destinies) > 1:
-                    destination_state = len(self.states+1)
-                    new_states[destinies] = destination_state
+                    if destinies in new_states:
+                        destination_state = new_states[destinies]
+                    else:
+                        destination_state = str(len(self.states+1))
+                        self.states.add(destination_state)
+                        new_states[destinies] = destination_state
+                
+                else:
+                    destination_state = destinies[0]
+                
+                new_transitions[symbol] = destination_state
                        
-            pass 
+            self.transitions[state] = new_transitions
+
+        while len(new_states) > 0:
+            originals = new_states.keys()[0]
+            new_state = new_states[originals]
+
+            new_transition = {}
+
+            destinies = {}
+            
+            for symbol in self.alphabet:
+                for original_state in originals:
+                    destinies.add(self.transitions[original_state][symbol])
+
+                    if original_state in self.final_states:
+                        self.final_states.add(new_state)
+
+                if destinies not in new_states:
+                    new_states[destinies] = str(len(self.states+1))
+                    self.states.add(new_states[destinies])
+
+                new_transition[symbol] = new_states[destinies]
+            
+
+            new_state = new_states[originals]
+            self.transitions[new_state] = new_transition
+
+            new_states.pop(new_state)
 
     def remove_unreachables(self):
-        pass
+        reachebles = {self.start_state}
+
+        for transition in self.transitions.values():
+            for reacheble_state in transition.values():
+                reachebles.add(reacheble_state)
+        
+        unreachebles = self.states - reachebles
+
+        for unreacheble_state in unreachebles:
+            self.states.remove(unreacheble_state)
+            if unreacheble_state in self.transitions:
+                self.transitions.pop(unreacheble_state)
