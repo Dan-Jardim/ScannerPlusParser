@@ -95,7 +95,7 @@ BASICgrammar = {
     "And-Exp'" : [('AND', 'And-Exp'), ('ε',)],
     'Not-Exp' : [('NOT', 'Compare-Exp'), ('Compare-Exp',)],
     'Compare-Exp' : [('Add-Exp', "Compare-Exp'")],
-    "Compare-Exp'" :[('=', "Compare-Exp'"), ('<>', "Compare-Exp'"), ('><', "Compare-Exp'"), ('>', "Compare-Exp'"), ('>=', "Compare-Exp'"), ('<', "Compare-Exp'"), ('<=', "Compare-Exp'"),('ε',)],
+    "Compare-Exp'" :[('=', "Add-Exp"), ('<>', "Add-Exp"), ('><', "Add-Exp"), ('>', "Add-Exp"), ('>=', "Add-Exp"), ('<', "Add-Exp"), ('<=', "Add-Exp"),('ε',)],
     'Add-Exp': [('Mult-Exp', "Add-Exp'")],
     "Add-Exp'" : [('+', 'Add-Exp'), ('-', 'Add-Exp'), ('ε',)],
     'Mult-Exp': [('Negate-Exp', "Mult-Exp'")],
@@ -402,5 +402,13 @@ fonte = ["Integer","PRINT","String","NewLine",
                             "Integer","PRINT","String","NewLine",
                             "Integer","INPUT","ID","NewLine",
                             "Integer","PRINT","String",";","ID",";","String","NewLine"]
-fonte2= ["Integer", "PRINT", "Integer", "NewLine"]
-parser(fonte2)
+exemplo1= ["Integer", "PRINT", "String", "NewLine"]
+exemplo6 = ["Integer","PRINT","String","NewLine",
+                            "Integer","GOTO","Integer","NewLine",
+                            "Integer","PRINT","String","NewLine",
+                            "Integer","GOTO","Integer","NewLine",
+                            "Integer","PRINT","String","NewLine",
+                            "Integer","PRINT","String","NewLine"]
+exemplo2= ["Integer", "INPUT", "ID", "NewLine","Integer", "PRINT", "ID", "NewLine"]
+exemplo3= ["Integer", "IF", "ID", ">","Integer", "THEN", "PRINT", "String", "NewLine"]
+parser(exemplo6)
