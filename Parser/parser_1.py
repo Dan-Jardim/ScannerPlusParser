@@ -61,7 +61,6 @@ def remove_left_recursion(grammar):
             new_grammar[non_terminal] = rules
     return new_grammar
 
-
 BASICgrammar = {
     'Lines' : [('Integer', 'Statements', 'NewLine', "Lines'")],
     "Lines'" : [('Lines',),('ε',)],
@@ -72,7 +71,7 @@ BASICgrammar = {
                   ('END',), ('FOR', 'ID', '=', 'Expression', 'TO', 'Expression',"Statement'"),
                   ('GOTO', 'Expression'), ('GOSUB', 'Expression'), ('IF', 'Expression', 'THEN', 'Statement'), ('INPUT', "Statement'", 'ID-List'),
                   ('LET', 'ID', '=', 'Expression'), ('NEXT', 'ID-List'),
-                  ('OPEN', 'Value', 'FOR', 'Access', 'AS', '#', 'Integer'), ('POKE', 'Value-List'), ('PRINT', "Statement'", 'Print-List'),
+                  ('OPEN', 'Value', 'FOR', 'Access', 'AS', '#','Integer'), ('POKE', 'Value-List'), ('PRINT', "Statement'", 'Print-List'),
                   ('READ', 'ID-List'), ('RETURN',), ('RESTORE',), ('RUN',), ('STOP',),
                   ('SYS', 'Value'), ('WAIT', 'Value-List'), ('Remark',)],
     "Statement'" : [('STEP','Integer'),('#','Integer',','),('ε',)],
@@ -111,8 +110,7 @@ BASICgrammar = {
 #basic_grammar = remove_left_recursion(BASICgrammar)
 basic_grammar = BASICgrammar
 
-print_grammar(BASICgrammar)
-print_grammar(basic_grammar)
+#print_grammar(basic_grammar)
 
 
 def calcula_first(nterminal,first_sets,gramatica):
@@ -273,6 +271,7 @@ class Noda:
         self.children = []
         self.parent = parent
         self.numchilds = num
+        self.closed = False
     def add_child(self, child):
         child.parent = self
         self.children.append(child)
@@ -313,15 +312,25 @@ def pilhagem(pilha,terminais,entrada, tabela,gramatica,start_symbol):
             if sim <len(entrada):
                 w=entrada[sim]
         elif atual == w:
-            print("Matched "+w)
-            while current_node.numchilds <=1:
+            print("\033[34mMatched "+w+"\033[0m")
+            current_node.closed=True
+            #print(current_node.value)
+            
+            while current_node.numchilds <=1 or all(child.closed   for child in current_node.children):
                 if current_node.parent is None:
                             break
+                if all(child.closed   for child in current_node.children):
+                    current_node.closed = True
                 current_node= current_node.parent
+                #print("actual == ",atual,"    subindo nó -_____________-",current_node.value, "  chil ==", current_node.numchilds)
+                #print_tree(current_node)
+            
             pilha.pop()
+            
             sim+=1
             if sim <len(entrada):
                 w=entrada[sim]
+                #print(entrada)
             
         elif atual in terminais:
             erro = f"Erro pois {atual} é um terminal"
@@ -351,14 +360,16 @@ def pilhagem(pilha,terminais,entrada, tabela,gramatica,start_symbol):
                     child_node = Noda(thing)
                     current_node.add_child(child_node)
                     while all(child.numchilds != 0 or (child.value in terminais or child.value == 'ε') for child in current_node.parent.children) and pilha.peek()!='$':
-                        if current_node.value=="E'":
-                            for child in current_node.children:
-                                print("HEY = ",child.numchilds)
+                        if all(child.closed   for child in current_node.children):
+                            current_node.closed = True
                         current_node= current_node.parent
                         if current_node.parent is None:
                             break
+                    if all(child.closed   for child in current_node.children):
+                        current_node.closed = True
                     current_node= current_node.parent
         atual=pilha.peek()
+        #print_tree(tree)
         if (current_node.children):
             for child in current_node.children:
 
@@ -379,18 +390,18 @@ def parser(entrada):
     first_setsBasic = first(basic_grammar)
 
 
-    print_firsts(first_setsBasic)
+    #print_firsts(first_setsBasic)
 
 
     follow_setsBasic = follow(basic_grammar, first_setsBasic, "Lines")
 
-    print_follows(follow_setsBasic)
+    #print_follows(follow_setsBasic)
 
 
 
     tabelaoBasic = constroi_tabela(basic_grammar, first_setsBasic, follow_setsBasic)
 
-    printa(tabelaoBasic)
+    #printa(tabelaoBasic)
 
     pil = Pilha()
 
@@ -402,13 +413,55 @@ fonte = ["Integer","PRINT","String","NewLine",
                             "Integer","PRINT","String","NewLine",
                             "Integer","INPUT","ID","NewLine",
                             "Integer","PRINT","String",";","ID",";","String","NewLine"]
-exemplo1= ["Integer", "PRINT", "String", "NewLine"]
+
+
+exemplo1= ["Integer", "PRINT", "String", "NewLine", 
+           "Integer", "END", "NewLine"]
+
+
+exemplo2= ["Integer", "INPUT", "ID", "NewLine", 
+           "Integer", "PRINT", "ID", "NewLine", 
+           "Integer", "END", "NewLine"]
+
+
+exemplo3= ["Integer", "IF", "ID", ">","Integer", "THEN", "PRINT", "String", "NewLine", 
+           "Integer", "END", "NewLine"]
+
+exemplo4= ["Integer", "POKE", "Integer", ",", "Integer", "NewLine", 
+           "Integer", "WAIT", "Integer", ",","Integer", "NewLine", 
+           "Integer", "END", "NewLine"]
+
+exemplo5 = ["Integer","OPEN","String", "FOR", "OUTPUT","AS", "#", "Integer", "NewLine",
+            "Integer","PRINT", "#", "Integer", ",", "String","NewLine",
+            "Integer","CLOSE", "#", "Integer","NewLine",
+            "Integer","END", "NewLine"]
+
+
 exemplo6 = ["Integer","PRINT","String","NewLine",
-                            "Integer","GOTO","Integer","NewLine",
-                            "Integer","PRINT","String","NewLine",
-                            "Integer","GOTO","Integer","NewLine",
-                            "Integer","PRINT","String","NewLine",
-                            "Integer","PRINT","String","NewLine"]
-exemplo2= ["Integer", "INPUT", "ID", "NewLine","Integer", "PRINT", "ID", "NewLine"]
-exemplo3= ["Integer", "IF", "ID", ">","Integer", "THEN", "PRINT", "String", "NewLine"]
-parser(exemplo6)
+            "Integer","GOTO","Integer","NewLine",
+            "Integer","PRINT","String","NewLine",
+            "Integer","GOTO","Integer","NewLine",
+             "Integer","PRINT","String","NewLine",
+            "Integer","PRINT","String","NewLine"]
+
+
+exemplo7 = ["Integer","GOSUB","Integer","NewLine",
+            "Integer","PRINT","String","NewLine",
+            "Integer","END","NewLine",
+            "Integer","PRINT","String","NewLine",
+            "Integer","RETURN","NewLine"]
+
+
+exemplo9 = ["Integer","LET","ID", "=", "Integer","NewLine",
+            "Integer","LET","ID", "=", "Integer","NewLine",
+            "Integer","LET","ID", "=", "Integer", "+", "Integer", "*", "(","Integer", "-", "Integer", ")", "/","Integer", "^", "Integer","NewLine",
+            "Integer","PRINT","String","NewLine",
+            "Integer", "END", "NewLine"]
+
+
+exemplo10 = ["Integer","Remark","NewLine",
+            "Integer","PRINT","String","NewLine",
+            "Integer","END","NewLine"]
+
+parser(exemplo7)
+#parser(exemplo4)
