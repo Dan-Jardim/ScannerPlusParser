@@ -178,7 +178,7 @@ class NondeterministicFiniteAutomata:
             break
 
     def processTransiton(self, transition_string):
-        symbol_pattern = r"\b[A-Za-z0-9._]+" 
+        symbol_pattern = r"[A-Za-z0-9._\"^\-\$\%\[\]\\]+" 
 
         symbols = re.findall(symbol_pattern, transition_string)
 
@@ -261,7 +261,7 @@ class NondeterministicFiniteAutomata:
         else:
             current_state = len(self.states)
 
-            sub_nfas[0].or_symbol(single_symbol, current_state)
+            sub_nfas[0].or_symbol(single_symbol, str(current_state))
 
             sub_nfa = sub_nfas[0]
 
@@ -498,23 +498,25 @@ class DeterministicFiniteAutomata(NondeterministicFiniteAutomata):
     def create_new_states(self, transitions):
         self.transitions = {}
 
-        new_states = {}
+        new_states = { }
+
+        destination_state = ""
 
         for state, transition in transitions.items():
             new_transitions = {}
 
             for symbol, destinies in transition.items():
-                
+                str_destinies = " ".join(destinies)
                 if len(destinies) == 0:
                     destination_state = ''
 
                 elif len(destinies) > 1:
-                    if destinies in new_states:
-                        destination_state = new_states[destinies]
+                    if str_destinies in new_states:
+                        destination_state = new_states[str_destinies]
                     else:
-                        destination_state = str(len(self.states+1))
+                        destination_state = str(len(self.states)+1)
                         self.states.add(destination_state)
-                        new_states[destinies] = destination_state
+                        new_states[str_destinies] = destination_state
                 
                 else:
                     destination_state = destinies[0]
@@ -524,31 +526,38 @@ class DeterministicFiniteAutomata(NondeterministicFiniteAutomata):
             self.transitions[state] = new_transitions
 
         while len(new_states) > 0:
-            originals = new_states.keys()[0]
-            new_state = new_states[originals]
+            str_originals = next(iter(new_states))
+            new_state = new_states[str_originals]
 
             new_transition = {}
 
-            destinies = {}
+            destinies = set()
+
+            originals = str_originals.split()
             
             for symbol in self.alphabet:
                 for original_state in originals:
-                    destinies.add(self.transitions[original_state][symbol])
+                    if original_state in self.transitions:
+                        destinies.add(self.transitions[original_state][symbol])
 
                     if original_state in self.final_states:
                         self.final_states.add(new_state)
 
-                if destinies not in new_states:
-                    new_states[destinies] = str(len(self.states+1))
-                    self.states.add(new_states[destinies])
+                str_destinies = " ".join(destinies)
 
-                new_transition[symbol] = new_states[destinies]
+                if str_destinies != "":
+
+                    if str_destinies not in new_states:
+                        new_states[str_destinies] = str(len(self.states+1))
+                        self.states.add(new_states[str_destinies])
+
+                    new_transition[symbol] = new_states[str_destinies]
             
 
-            new_state = new_states[originals]
+            new_state = new_states[str_originals]
             self.transitions[new_state] = new_transition
 
-            new_states.pop(new_state)
+            new_states.pop(str_originals)
 
     def remove_unreachables(self):
         reachebles = {self.start_state}
@@ -563,3 +572,26 @@ class DeterministicFiniteAutomata(NondeterministicFiniteAutomata):
             self.states.remove(unreacheble_state)
             if unreacheble_state in self.transitions:
                 self.transitions.pop(unreacheble_state)
+            if unreacheble_state in self.final_states:
+                self.final_states.remove(unreacheble_state)
+
+    def read_word(self, word):
+        current_state = self.start_state
+
+        for letter in word:
+            current_symbol = ""
+            for symbol in self.alphabet:
+                if re.match(symbol, letter):
+                    current_symbol = symbol
+    
+            current_transition = self.transitions[current_state]
+
+            if current_symbol not in current_transition:
+                return False
+            
+            current_state = current_transition[current_symbol]
+
+            if len(current_state) == 0:
+                return False
+            
+        return (current_state in self.final_states)

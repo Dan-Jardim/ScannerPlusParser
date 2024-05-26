@@ -1,10 +1,11 @@
 import nda
 
 def main():
-    my_regex = ["(((alpha,beta)|,(alpha,delta)|)&)*",
-                "((alpha,beta)|,alpha)|"]
+    my_regex = ["(((a,b)|,(a,d)|)&)*",
+                "((a,b)|,a)|",
+                "([0-9])+"]
     
-    test_nfa = nda.NondeterministicFiniteAutomata(my_regex[0])
+    test_nfa = nda.NondeterministicFiniteAutomata(my_regex[2])
 
     nda.fill_symbols_transition(test_nfa)
     nda.remove_empty_transitions(test_nfa)
