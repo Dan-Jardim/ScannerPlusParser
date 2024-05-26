@@ -44,7 +44,6 @@ def remove_left_recursion(grammar):
     for non_terminal, rules in grammar.items():
         new_rules = []
         recursive_rules = []
-        # Separate recursive and non-recursive rules
         for rule in rules:
             if rule[0] == non_terminal:
                 recursive_rules.append(rule[1:])
@@ -107,10 +106,8 @@ BASICgrammar = {
     'Constant': [('Integer',), ('String',), ('Real',)]
 }
 
-#basic_grammar = remove_left_recursion(BASICgrammar)
 basic_grammar = BASICgrammar
 
-#print_grammar(basic_grammar)
 
 
 def calcula_first(nterminal,first_sets,gramatica):
@@ -265,7 +262,7 @@ def printa(tabela):
         print()
 
 
-class Noda:
+class ArvoreSint:
     def __init__(self, value, parent=None,num=0):
         self.value = value
         self.children = []
@@ -291,7 +288,7 @@ def print_tree(root, markerStr="+- ", levelMarkers=[]):
     for i, child in enumerate(root.children):
         isLast = i == len(root.children) - 1
         print_tree(child, markerStr, [*levelMarkers, not isLast])
-def pilhagem(pilha,terminais,entrada, tabela,gramatica,start_symbol):
+def analiseSint(pilha,terminais,entrada, tabela,gramatica,start_symbol):
     
     
     entrada.append('$')
@@ -299,8 +296,8 @@ def pilhagem(pilha,terminais,entrada, tabela,gramatica,start_symbol):
     w=entrada[sim]
     pilha.push('$')
     pilha.push(start_symbol)
-    tree = Noda(start_symbol)  # Root of the tree
-    current_node = tree  # Current node in the tree
+    tree = ArvoreSint(start_symbol)  
+    current_node = tree 
     atual=pilha.peek()
     erros = []
     while atual !="$":
@@ -314,7 +311,6 @@ def pilhagem(pilha,terminais,entrada, tabela,gramatica,start_symbol):
         elif atual == w:
             print("\033[34mMatched "+w+"\033[0m")
             current_node.closed=True
-            #print(current_node.value)
             
             while current_node.numchilds <=1 or all(child.closed   for child in current_node.children):
                 if current_node.parent is None:
@@ -322,15 +318,12 @@ def pilhagem(pilha,terminais,entrada, tabela,gramatica,start_symbol):
                 if all(child.closed   for child in current_node.children):
                     current_node.closed = True
                 current_node= current_node.parent
-                #print("actual == ",atual,"    subindo nó -_____________-",current_node.value, "  chil ==", current_node.numchilds)
-                #print_tree(current_node)
             
             pilha.pop()
             
             sim+=1
             if sim <len(entrada):
                 w=entrada[sim]
-                #print(entrada)
             
         elif atual in terminais:
             erro = f"Erro pois {atual} é um terminal"
@@ -354,10 +347,10 @@ def pilhagem(pilha,terminais,entrada, tabela,gramatica,start_symbol):
             for thing in reversed(sep):
                 if thing != "ε":
                     pilha.push(thing)
-                    child_node = Noda(thing)
+                    child_node = ArvoreSint(thing)
                     current_node.add_child(child_node)
                 else:
-                    child_node = Noda(thing)
+                    child_node = ArvoreSint(thing)
                     current_node.add_child(child_node)
                     while all(child.numchilds != 0 or (child.value in terminais or child.value == 'ε') for child in current_node.parent.children) and pilha.peek()!='$':
                         if all(child.closed   for child in current_node.children):
@@ -369,7 +362,6 @@ def pilhagem(pilha,terminais,entrada, tabela,gramatica,start_symbol):
                         current_node.closed = True
                     current_node= current_node.parent
         atual=pilha.peek()
-        #print_tree(tree)
         if (current_node.children):
             for child in current_node.children:
 
@@ -407,7 +399,7 @@ def parser(entrada):
 
     termsBasic=extract_terminals(basic_grammar)
 
-    pilhagem(pil,termsBasic,entrada,tabelaoBasic,basic_grammar,'Lines')
+    analiseSint(pil,termsBasic,entrada,tabelaoBasic,basic_grammar,'Lines')
     
 fonte = ["Integer","PRINT","String","NewLine",
                             "Integer","PRINT","String","NewLine",
