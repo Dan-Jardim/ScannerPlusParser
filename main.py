@@ -35,7 +35,8 @@ def main(source_code):
             parser_input.append(token.value)
         elif token.type != "whitespace":
             parser_input.append(token.type)
-    parser_input.append("NewLine")
+    if parser_input[len(parser_input)-1] != "NewLine":
+        parser_input.append("NewLine")
     print(parser_input)
     parser_1.parser(parser_input)
 
