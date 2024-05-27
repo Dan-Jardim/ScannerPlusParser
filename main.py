@@ -13,7 +13,7 @@ def mainTest():
     
     test_dfa = dfa.createAutomata(my_regex[2])
     test_dfa.print_automata()
-
+    
     dfas = sc.read_regex_file(BasicER)
     
     print("DONE")
@@ -35,7 +35,8 @@ def main(source_code):
             parser_input.append(token.value)
         elif token.type != "whitespace":
             parser_input.append(token.type)
-
+    parser_input.append("NewLine")
+    print(parser_input)
     parser_1.parser(parser_input)
 
 if __name__ == "__main__":
