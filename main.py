@@ -31,9 +31,9 @@ def main(source_code):
     parser_input = []
     
     for token in tokens:
-        if token.type == "KEY_WORD":
+        if token.type == "KEY_WORD" or token.type == "Operator":
             parser_input.append(token.value)
-        else:
+        elif token.type != "whitespace":
             parser_input.append(token.type)
 
     parser_1.parser(parser_input)
