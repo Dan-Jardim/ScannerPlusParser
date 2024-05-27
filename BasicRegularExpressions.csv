@@ -1,5 +1,5 @@
 KEY_WORD:((((((((((((((((((((((((((((((PRINT,INPUT)|,IF)|,THEN)|,ELSE)|,FOR)|,NEXT)|,WHILE)|,WEND)|,DIM)|,GOTO)|,GOSUB)|,RETURN)|,END)|,REM)|,CLOSE)|,DATA)|,TO)|,STEP)|,READ)|,LET)|,OPEN)|,AS)|,POKE)|,WRITE)|,RESTORE)|,RUN)|,STOP)|,SYS)|,WAIT)|,OUTPUT)|
-Operator: (((((((((((((\+,\-)|,\*)|,=)|,<)|,>)|,<)|,>)|,<=)|,>=)|,\,)|,\()|,\))|,\/)|
+Operator: ((((((((((((((((((\+,\-)|,\*)|,=)|,<)|,>)|,<)|,>)|,<=)|,>=)|,\,)|,\()|,\))|,\/)|,\<>)|,\><)|,\;)|,\^)|,\#)|
 Integer:([\d])+
 Real:((([\d])+,[.])&,[\d])&
 ID:([A-Za-z],(([A-Za-z],[$%])|)+)&
