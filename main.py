@@ -46,4 +46,7 @@ if __name__ == "__main__":
     else:
         code = sys.argv[1]
 
-    main(code)
+    while code != "":
+        main(code)
+
+        code = input("Enter another source code (or Press enter to exit): ")
