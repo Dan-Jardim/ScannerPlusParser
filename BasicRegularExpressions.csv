@@ -2,7 +2,7 @@ KEY_WORD:((((((((((((((PRINT,INPUT)|,IF)|,THEN)|,ELSE)|,FOR)|,NEXT)|,WHILE)|,WEN
 Operator: ((((((((((\+,\-)|,\*)|,\/)|,=)|,<)|,>)|,<)|,>)|,<=)|,>=)|
 Integer:([\d])+
 Real:((([\d])+,[.])&,[\d])&
-id:([A-Za-z],(([A-Za-z],[$%])|)+)&
-newline: ([\r\n])+
+ID:([A-Za-z],(([A-Za-z],[$%])|)+)&
+NewLine: ([\r\n])+
 whitespace:([ \t\x0B\f\r\n])+
-string_pattern:“([^"])*”
+String:“([^"])*”
