@@ -26,10 +26,17 @@ def main(source_code):
 
     tokens = BasicScanner.run_scanner(text=code)
 
-    for token in tokens:
-        print(token)
 
-    print("DONE")
+    parser_input = []
+    
+    for token in tokens:
+        if token.type == "KEY_WORD":
+            parser_input.append(token.value)
+        else:
+            parser_input.append(token.type)
+
+    for entrada in parser_input:
+        print(entrada)
 
 if __name__ == "__main__":
     if len(sys.argv) <= 1:
