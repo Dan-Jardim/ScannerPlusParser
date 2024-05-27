@@ -1,0 +1,23 @@
+Relatório do Trabalho 1 de Compiladores
+
+
+Atuação de Cada Membro:
+
+Flavio Mateus Pereira Francisco:
+
+Construção da gramática
+Classe Pilha
+Classe ArvoreSint
+Funções first e calcula_first
+Funções follow e calcula_follow
+Funções print_firsts e print_follows
+Função extract_terminals
+Função constroi_tabela
+Funções printa e print_tree
+Função AnaliseSint
+Função parser
+
+Daniel Azevedo Jardim:
+
+Os arquivos nda.py, scanner.py e main.py
+
