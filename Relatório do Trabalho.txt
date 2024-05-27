@@ -19,5 +19,5 @@ Função parser
 
 Daniel Azevedo Jardim:
 
-Os arquivos nda.py, scanner.py e main.py
+Os arquivos nda.py, dfa.py, scanner.py e main.py
 
