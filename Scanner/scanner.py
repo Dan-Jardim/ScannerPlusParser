@@ -1,5 +1,5 @@
 import re
-import dfa
+import Scanner.dfa as dfa
 import csv
 
 class token:

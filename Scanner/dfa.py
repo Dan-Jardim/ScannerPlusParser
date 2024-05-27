@@ -1,5 +1,5 @@
 import re
-import nfa
+import Scanner.nfa as nfa
 
 class DeterministicFiniteAutomata(nfa.NondeterministicFiniteAutomata):
     def __init__(self, nfa):

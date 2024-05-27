@@ -1,5 +1,5 @@
-import dfa
-import scanner as sc
+import Scanner.dfa as dfa
+import Scanner.scanner as sc
 import sys
 from Parser import parser_1
 
