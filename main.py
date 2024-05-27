@@ -1,6 +1,7 @@
 import dfa
 import scanner as sc
 import sys
+from Parser import parser_1
 
 BasicER = "BasicRegularExpressions.csv"
 
@@ -35,8 +36,7 @@ def main(source_code):
         else:
             parser_input.append(token.type)
 
-    for entrada in parser_input:
-        print(entrada)
+    parser_1.parser(parser_input)
 
 if __name__ == "__main__":
     if len(sys.argv) <= 1:

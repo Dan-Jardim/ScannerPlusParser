@@ -1,8 +1,8 @@
-KEY_WORD:((((((((((((((PRINT,INPUT)|,IF)|,THEN)|,ELSE)|,FOR)|,NEXT)|,WHILE)|,WEND)|,DIM)|,GOTO)|,GOSUB)|,RETURN)|,END)|,REM)|
-Operator: ((((((((((\+,\-)|,\*)|,\/)|,=)|,<)|,>)|,<)|,>)|,<=)|,>=)|
+KEY_WORD:((((((((((((((((((((((((((((((PRINT,INPUT)|,IF)|,THEN)|,ELSE)|,FOR)|,NEXT)|,WHILE)|,WEND)|,DIM)|,GOTO)|,GOSUB)|,RETURN)|,END)|,REM)|,CLOSE)|,DATA)|,TO)|,STEP)|,READ)|,LET)|,OPEN)|,AS)|,POKE)|,WRITE)|,RESTORE)|,RUN)|,STOP)|,SYS)|,WAIT)|,OUTPUT)|
+Operator: (((((((((((((\+,\-)|,\*)|,=)|,<)|,>)|,<)|,>)|,<=)|,>=)|,\,)|,\()|,\))|,\/)|
 Integer:([\d])+
 Real:((([\d])+,[.])&,[\d])&
 ID:([A-Za-z],(([A-Za-z],[$%])|)+)&
 NewLine: ([\r\n])+
+String:((",([^"])*)&,")&
 whitespace:([ \t\x0B\f\r\n])+
-String:“([^"])*”

@@ -455,5 +455,5 @@ exemplo10 = ["Integer","Remark","NewLine",
             "Integer","PRINT","String","NewLine",
             "Integer","END","NewLine"]
 
-parser(exemplo7)
+#parser(exemplo7)
 #parser(exemplo4)
