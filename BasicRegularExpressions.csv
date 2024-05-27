@@ -1,0 +1,8 @@
+KEY_WORD:((((((((((((((PRINT,INPUT)|,IF)|,THEN)|,ELSE)|,FOR)|,NEXT)|,WHILE)|,WEND)|,DIM)|,GOTO)|,GOSUB)|,RETURN)|,END)|,REM)|
+Operator: ((((((((((\+,\-)|,\*)|,\/)|,=)|,<)|,>)|,<)|,>)|,<=)|,>=)|
+Integer:([\d])+
+Real:((([\d])+,[.])&,[\d])&
+id:([A-Za-z],(([A-Za-z],[$%])|)+)&
+newline: ([\r\n])+
+whitespace:([ \t\x0B\f\r\n])+
+string_pattern:“([^"])*”
