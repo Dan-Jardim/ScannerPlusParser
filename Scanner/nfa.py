@@ -146,7 +146,7 @@ class NondeterministicFiniteAutomata:
         sub_automata = ""
         
         while temporary_re != "":
-            re_pattern = r"\(((\[[\\,;\\(\))]+\])|([A-Za-z0-9._\"^\-\$\%\[\]\\\/\+\*><= ]+))\,((\[[\\,;\\(\))]+\])|([A-Za-z0-9._\"^\-\$\%\[\]\\\/\+\*><= ]+))\)+[|&]|\(((\[[\\,;\\(\))]+\])|([A-Za-z0-9._\"^\-\$\%\[\]\\\/\+\*><= ]+))\)+[+*]"
+            re_pattern = r"\(((\[[\\,;\\(\))]+\])|([A-Za-z0-9._\"^\-\$\%\[\]\\\/\+\*\#><= ]+))\,((\[[\\,;\\(\))]+\])|([A-Za-z0-9._\"^\-\$\%\[\]\\\/\+\*\#><= ]+))\)+[|&]|\(((\[[\\,;\\(\))]+\])|([A-Za-z0-9._\"^\-\$\%\[\]\\\/\+\*\#><= ]+))\)+[+*]"
             transition = re.search(re_pattern, temporary_re)
             
             if not transition:
@@ -178,7 +178,7 @@ class NondeterministicFiniteAutomata:
             break
 
     def processTransiton(self, transition_string):
-        symbol_pattern = r"(\[[\\,;\\(\))]+\]|[A-Za-z0-9._\"^\-\$\%\[\]\\\/\+\*><=]+)" 
+        symbol_pattern = r"(\[[\\,;\\(\))]+\]|[A-Za-z0-9._\"^\-\$\%\[\]\\\/\+\*\#><=]+)" 
 
         symbols = re.findall(symbol_pattern, transition_string)
 
