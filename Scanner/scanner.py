@@ -31,22 +31,31 @@ class Scanner:
 
         symbol = ""
         insideString = False
+        remark = False
         for char in code:
             
-            if char == '"':
+            if remark and char != "\n":
+                symbol += char
+
+            elif char == '"':
                 symbol += char
                 insideString = not insideString
                 
                 if not insideString:
                     word_list.append(symbol)
                     symbol = ""
+
+            elif char == "#":
+                symbol += char
+                remark = not remark
         
             elif char == "\n":
                 word_list.append(symbol)
                 word_list.append(char)
+                remark = not remark
                 symbol = ""
 
-            elif char != " " or insideString:
+            elif char != " " or insideString or remark:
                 symbol+=char
 
             else:
@@ -68,7 +77,11 @@ class Scanner:
         for word in words:
             for type, dfa in self.rules.items():
                 if dfa.read_word(word):
-                    token_list.append(token(word, type))
+                    if word[0] == "#":
+                        token_list.append(token("#","KEY_WORD"))
+                        token_list.append(token(word[1:], type))
+                    else:
+                        token_list.append(token(word, type))
                     break
         
         return token_list
